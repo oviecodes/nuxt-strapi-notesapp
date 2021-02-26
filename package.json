@@ -16,7 +16,8 @@
     "@nuxtjs/pwa": "^3.3.5",
     "@nuxtjs/strapi": "^0.3.0",
     "core-js": "^3.8.3",
-    "nuxt": "^2.14.12"
+    "nuxt": "^2.14.12",
+    "vue-quill-editor": "^3.0.6"
   },
   "devDependencies": {
     "@nuxtjs/eslint-config": "^5.0.0",
