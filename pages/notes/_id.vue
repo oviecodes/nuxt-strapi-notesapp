@@ -1,9 +1,6 @@
 <template>
-
-  <section>
-    <NuxtLink :to="`/notes/preview/${res.id}`">
-      Preview
-    </NuxtLink>
+  <div class="container">
+    <NuxtLink :to="`/notes/preview/${res.id}`"> Preview </NuxtLink>
     <div>
       <input
         v-model="title"
@@ -35,7 +32,7 @@
         />
       </form>
     </div>
-  </section>
+  </div>
 </template>
 
 <script>
@@ -85,11 +82,11 @@ export default {
   },
   watch: {
     res(newRes, oldRes) {
-      //console.log(newRes.users_permissions_user.id === this.$auth.$storage.getUniversal('user').id)
-      if(this.$auth.$storage.getUniversal('user')) {
+      // console.log(newRes.users_permissions_user.id === this.$auth.$storage.getUniversal('user').id)
+      if (this.$auth.$storage.getUniversal('user')) {
         this.isAuthor =
-        newRes.users_permissions_user.id ===
-        this.$auth.$storage.getUniversal('user').id
+          newRes.users_permissions_user.id ===
+          this.$auth.$storage.getUniversal('user').id
       }
     },
   },
@@ -111,7 +108,11 @@ export default {
     },
     onEditorFocus(editor) {
       console.log('editor focus!', editor)
-      if (!this.$auth.$storage.getUniversal('user') || (this.$auth.$storage.getUniversal('user').id !== this.res.users_permissions_user.id)) {
+      if (
+        !this.$auth.$storage.getUniversal('user') ||
+        this.$auth.$storage.getUniversal('user').id !==
+          this.res.users_permissions_user.id
+      ) {
         editor.enable(false)
       }
     },
@@ -141,7 +142,11 @@ export default {
       //   // }
       // } // Add request header
       // this.isLoading = true
-      if(!this.$auth.$storage.getUniversal('user') || (this.res.users_permissions_user.id === this.$auth.$storage.getUniversal('user').id)) {
+      if (
+        !this.$auth.$storage.getUniversal('user') ||
+        this.res.users_permissions_user.id ===
+          this.$auth.$storage.getUniversal('user').id
+      ) {
         const res = await this.$axios.post(
           `http://localhost:1337/upload`,
           formdata
@@ -152,15 +157,14 @@ export default {
         // let [line] = this.quill.getLine(10);
         // let index = this.quill.getIndex(line)
         const { index } = this.quill.getSelection()
-        
+
         this.quill.insertEmbed(
           index,
           'image',
-          `http://localhost:1337${res.data[0].formats.thumbnail.url}`
+          `http://localhost:1337${res.data[0].formats.small.url}`
         )
         console.log(this.content)
       }
-      
     },
     async update() {
       const params = {
@@ -199,7 +203,22 @@ export default {
 }
 .quill-editor {
   min-height: 200px;
-  max-height: 400px;
+  /* max-height: 400px; */
+  padding: 5%;
   overflow-y: auto;
+}
+.ql-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgb(26, 25, 25);
+  color: #fff;
+}
+.ql-toolbar span {
+  color: #fff;
+}
+img{
+  margin: 0 auto;
+  width: 60%;
 }
 </style>
