@@ -1,14 +1,18 @@
 <template>
-  <div class="container cusor-pointer">
-    <div id="toolbar"></div>
-    <div
-      v-quill:myQuillEditor="editorOption"
-      class="quill-editor"
-      :content="note.content"
-      @ready="onEditorReady($event)"
-      @focus="onEditorFocus($event)"
-    ></div>
-  </div>
+    <div>
+        
+        <div class="container cusor-pointer">
+            {{ note.title }}
+            <div id="toolbar"></div>
+            <div
+            v-quill:myQuillEditor="editorOption"
+            class="quill-editor"
+            :content="note.content"
+            @ready="onEditorReady($event)"
+            @focus="onEditorFocus($event)"
+            ></div>
+        </div>
+    </div>
 </template>
 
 <script>

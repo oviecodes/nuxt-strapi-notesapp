@@ -1,5 +1,12 @@
 <template>
   <div class="container">
+    <button>Add Editor</button>
+    <div>
+      <form @submit="addNewEditor">
+        <input v-model="editorEmail" type="text" />
+        <button type="submit">Add</button>
+      </form>
+    </div>
     <NuxtLink :to="`/notes/preview/${res.id}`"> Preview </NuxtLink>
     <div>
       <input
@@ -38,6 +45,25 @@
 <script>
 // import { mapGetters } from 'vuex'
 export default {
+  async middleware({ $auth, route, redirect, store, $strapi }) {
+    console.log('cookie user from middleware', $auth.$storage.getUniversal('user'))
+    console.log(route.params.id)
+    const note = await $strapi.$notes.findOne(route.params.id)
+    const noteAuthorId = note.users_permissions_user.id
+    // console.log('note from middleware', await $strapi.$notes.findOne(route.params.id).users_permissions_user.id)
+
+    if (
+      $auth.$storage.getUniversal('user').id !== noteAuthorId && note.Editors.findIndex(editor => {
+        editor.id === $auth.$storage.getUniversal('user').id
+      }) === -1
+    ) {
+      return redirect(`/notes/preview/${route.params.id}`)
+    }
+  },
+  async asyncData({ $strapi, store, route }) {
+    const note = await $strapi.$notes.findOne(route.params.id)
+    store.commit('setNote', note)
+  },
   data() {
     const self = this
     return {
@@ -45,6 +71,8 @@ export default {
       isAuthor: '',
       title: '',
       content: '',
+      addEditor: false,
+      editorEmail: '',
       editorOption: {
         // some quill options
         modules: {
@@ -90,8 +118,9 @@ export default {
       }
     },
   },
-  async created() {
-    const res = await this.$strapi.$notes.findOne(this.$route.params.id)
+  created() {
+    const res = this.$store.getters.getNote
+    console.log('res', res)
     this.title = res.title
     this.res = res
     this.content = res.content ? res.content : ''
@@ -154,8 +183,6 @@ export default {
         )
         // this.isLoading = false
         console.log('res', res)
-        // let [line] = this.quill.getLine(10);
-        // let index = this.quill.getIndex(line)
         const { index } = this.quill.getSelection()
 
         this.quill.insertEmbed(
@@ -192,6 +219,14 @@ export default {
       //   })
       // }
     },
+    async addNewEditor(e) {
+      e.preventDefault()
+      const newEditor = await this.$strapi.$users.find({
+        email: this.editorEmail,
+      })
+      console.log(newEditor)
+      await this.$strapi.$notes.update(this.$route.params.id, { Editors: newEditor })
+    },
   },
 }
 </script>
@@ -217,7 +252,7 @@ export default {
 .ql-toolbar span {
   color: #fff;
 }
-img{
+img {
   margin: 0 auto;
   width: 60%;
 }

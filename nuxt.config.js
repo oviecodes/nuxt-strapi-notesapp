@@ -46,6 +46,7 @@ export default {
     '@nuxtjs/pwa',
     '@nuxtjs/strapi',
     '@nuxtjs/auth-next',
+    'cookie-universal-nuxt',
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios

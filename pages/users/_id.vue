@@ -10,17 +10,18 @@
 </template>
 
 <script>
+import Cookies from 'js-cookie'
 export default {
-  async asyncData({ $auth, $strapi }) {
-    const userId = $auth.$storage.getUniversal('user').id
+  async asyncData({ $strapi, route }) {
+    const user = await $strapi.$users.findOne(route.params.id)
     const notes = await $strapi.$notes.find({
-      'users_permissions_user.id': userId,
+      'users_permissions_user.id': route.params.id,
     })
-    return { notes }
+    return { notes, user }
   },
   data() {
     return {
-      user: this.$auth.$storage.getUniversal('user'),
+      // user: Cookies.getJSON('user'),
       title: `New Note`,
       content: `<p>Start Writing</p>`,
     }
@@ -31,6 +32,7 @@ export default {
         title: this.title,
         content: this.content,
         users_permissions_user: this.user,
+        Editors: [],
       })
       console.log(newNote)
       this.$router.push(`/notes/${newNote.id}`)
