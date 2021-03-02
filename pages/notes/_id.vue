@@ -221,11 +221,13 @@ export default {
     },
     async addNewEditor(e) {
       e.preventDefault()
-      const newEditor = await this.$strapi.$users.find({
+      const [ newEditor ] = await this.$strapi.$users.find({
         email: this.editorEmail,
       })
       console.log(newEditor)
-      await this.$strapi.$notes.update(this.$route.params.id, { Editors: newEditor })
+      const oldEditors = this.res.Editors
+      const updatedEditors = [...oldEditors, newEditor]
+      await this.$strapi.$notes.update(this.$route.params.id, { Editors: updatedEditors })
     },
   },
 }
