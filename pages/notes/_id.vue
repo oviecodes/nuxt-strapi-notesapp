@@ -53,9 +53,9 @@ export default {
     // console.log('note from middleware', await $strapi.$notes.findOne(route.params.id).users_permissions_user.id)
 
     if (
-      $auth.$storage.getUniversal('user').id !== noteAuthorId && note.Editors.findIndex(editor => {
+      $auth.$storage.getUniversal('user') === null || ($auth.$storage.getUniversal('user').id !== noteAuthorId && note.Editors.findIndex(editor => {
         editor.id === $auth.$storage.getUniversal('user').id
-      }) === -1
+      }) === -1)
     ) {
       return redirect(`/notes/preview/${route.params.id}`)
     }
@@ -221,13 +221,23 @@ export default {
     },
     async addNewEditor(e) {
       e.preventDefault()
-      const [ newEditor ] = await this.$strapi.$users.find({
-        email: this.editorEmail,
-      })
-      console.log(newEditor)
-      const oldEditors = this.res.Editors
-      const updatedEditors = [...oldEditors, newEditor]
-      await this.$strapi.$notes.update(this.$route.params.id, { Editors: updatedEditors })
+      try {
+        const [ newEditor ] = await this.$strapi.$users.find({
+          email: this.editorEmail,
+        })
+        console.log(newEditor)
+        const oldEditors = this.res.Editors
+        // console.log('exixting editor', oldEditors.findIndex(editor => editor.email === newEditor.email) !== -1)
+        if( newEditor !== undefined && oldEditors.findIndex(editor => editor.email === newEditor.email) === -1 ) {
+          const updatedEditors = [...oldEditors, newEditor]
+          await this.$strapi.$notes.update(this.$route.params.id, { Editors: updatedEditors })
+        } else {
+          console.log(`${newEditor.email} already an editor`)
+        }
+        
+      } catch (e) {
+        this.$nuxt.error(e)
+      }
     },
   },
 }
