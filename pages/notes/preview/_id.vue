@@ -1,14 +1,17 @@
 <template>
   <div>
-    <NuxtLink v-if="isEditor" :to="`/notes/${note.id}`"> Edit </NuxtLink>
-    <button v-if="!isEditor" @click="requestEditAccess">
-      Request Edit Permissions
-    </button>
-    <div class="container cusor-pointer">
+    <div class="container">
+      <NuxtLink v-if="isEditor" :to="`/notes/${note.id}`"> Edit </NuxtLink>
+      <button v-if="!isEditor" @click="requestEditAccess">
+        Request Edit Permissions
+      </button>
+
+      <Share :id='note.id'/>
+
       {{ note.title }}
-      <div id="toolbar"></div>
+
       <div
-        v-quill:myQuillEditor="editorOption"
+        v-quill="editorOption"
         class="quill-editor"
         :content="note.content"
         @ready="onEditorReady($event)"
@@ -29,7 +32,7 @@ export default {
       error: '',
       editorOption: {
         modules: {
-          toolbar: '#toolbar',
+          toolbar: '',
         },
       },
     }
@@ -53,20 +56,24 @@ export default {
     onEditorFocus(editor) {
       editor.disable()
     },
+    assignValue(e){
+        console.log(e.target.value)
+        this.recieverEmail = e.target.value
+    },
     async requestEditAccess() {
       console.log(`requesting edit access...`)
-      // if (this.$auth.$storage.getUniversal('user') !== null) {
-      await this.$axios.$post(
-        `http://localhost:1337/notes/${this.note.id}/requestEditAccess`,
-        {
-          noteAuthor: `oviecodes@gmail.com`,
-          // userEmail: this.$auth.$storage.getUniversal('user').email,
-        }
-      )
-      // } else {
-      //   this.error = 'please login to request access'
-      //   console.log('please login to request access')
-      // }
+      if (this.$auth.$storage.getUniversal('user') !== null) {
+        await this.$axios.$post(
+          `http://localhost:1337/notes/${this.note.id}/requestEditAccess`,
+          {
+            noteAuthor: this.note.users_permissions_user.email,
+            userEmail: this.$auth.$storage.getUniversal('user').email,
+          }
+        )
+      } else {
+        this.error = 'please login to request access'
+        console.log('please login to request access')
+      }
     },
   },
 }
@@ -84,9 +91,6 @@ export default {
   /* max-height: 400px; */
   padding: 5%;
   overflow-y: auto;
-}
-#toolbar {
-  height: 0;
 }
 img {
   margin: 0 auto;

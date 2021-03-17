@@ -3,7 +3,7 @@
     <button>Add Editor</button>
     <div>
       <form @submit="addNewEditor">
-        <input v-model="editorEmail" type="text" />
+        <input v-model="editorEmail" type="email" placeholder="Email" />
         <button type="submit">Add</button>
       </form>
     </div>
@@ -46,16 +46,21 @@
 // import { mapGetters } from 'vuex'
 export default {
   async middleware({ $auth, route, redirect, store, $strapi }) {
-    console.log('cookie user from middleware', $auth.$storage.getUniversal('user'))
+    console.log(
+      'cookie user from middleware',
+      $auth.$storage.getUniversal('user')
+    )
     console.log(route.params.id)
     const note = await $strapi.$notes.findOne(route.params.id)
     const noteAuthorId = note.users_permissions_user.id
     // console.log('note from middleware', await $strapi.$notes.findOne(route.params.id).users_permissions_user.id)
 
     if (
-      $auth.$storage.getUniversal('user') === null || ($auth.$storage.getUniversal('user').id !== noteAuthorId && note.Editors.findIndex(editor => {
-        editor.id === $auth.$storage.getUniversal('user').id
-      }) === -1)
+      $auth.$storage.getUniversal('user') === null ||
+      ($auth.$storage.getUniversal('user').id !== noteAuthorId &&
+        note.Editors.findIndex((editor) => {
+          return editor.id === $auth.$storage.getUniversal('user').id
+        }) === -1)
     ) {
       return redirect(`/notes/preview/${route.params.id}`)
     }
@@ -68,6 +73,7 @@ export default {
     const self = this
     return {
       res: '',
+      error: '',
       isAuthor: '',
       title: '',
       content: '',
@@ -222,19 +228,37 @@ export default {
     async addNewEditor(e) {
       e.preventDefault()
       try {
-        const [ newEditor ] = await this.$strapi.$users.find({
+        const [newEditor] = await this.$strapi.$users.find({
           email: this.editorEmail,
         })
         console.log(newEditor)
         const oldEditors = this.res.Editors
         // console.log('exixting editor', oldEditors.findIndex(editor => editor.email === newEditor.email) !== -1)
-        if( newEditor !== undefined && oldEditors.findIndex(editor => editor.email === newEditor.email) === -1 ) {
-          const updatedEditors = [...oldEditors, newEditor]
-          await this.$strapi.$notes.update(this.$route.params.id, { Editors: updatedEditors })
+        if (
+          newEditor !== undefined &&
+          oldEditors.findIndex((editor) => editor.email === newEditor.email) ===
+            -1
+        ) {
+          const updatedEditors = [...oldEditors, newEditor] 
+          //call api to send mail
+          await this.$axios.$post(
+            `http://localhost:1337/notes/${this.res.id}/addEditors`,
+            {
+              editorEmail: this.editorEmail,
+              noteAuthor: this.$auth.$storage.getUniversal('user').email,
+            })
+          //update editors in strapi backend
+          await this.$strapi.$notes.update(this.$route.params.id, {
+            Editors: updatedEditors,
+          })
+          //update editors in store
+          this.$store.commit('updateEditors', updatedEditors)
         } else {
-          console.log(`${newEditor.email} already an editor`)
+          this.error = `The user with that email doesn't exist or is already an editor`
+          console.log(`${this.error}`)
         }
-        
+        this.error = ''
+        this.editorEmail = ''
       } catch (e) {
         this.$nuxt.error(e)
       }

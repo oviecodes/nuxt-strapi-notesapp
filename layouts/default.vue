@@ -38,18 +38,17 @@ html {
   background-color: #3b8070;
 }
 
-.button--grey {
+.button--blue {
   display: inline-block;
   border-radius: 4px;
-  border: 1px solid #35495e;
-  color: #35495e;
+  border: 1px solid blue;
+  color: blue;
   text-decoration: none;
   padding: 10px 30px;
-  margin-left: 15px;
 }
 
-.button--grey:hover {
+.button--blue:hover {
   color: #fff;
-  background-color: #35495e;
+  background-color: blue;
 }
 </style>

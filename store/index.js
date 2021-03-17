@@ -13,5 +13,6 @@ export const actions = {
 }
 
 export const mutations = {
-    setNote: (state, currentNote) => (state.note = currentNote)
+    setNote: (state, currentNote) => (state.note = currentNote),
+    updateEditors: (state, editors) => (state.note.Editors = editors)
 }
