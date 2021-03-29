@@ -1,57 +1,95 @@
 <template>
-  <div class="container">
-    <button>Add Editor</button>
-    <div>
-      <form @submit="addNewEditor">
-        <input v-model="editorEmail" type="email" placeholder="Email" />
-        <button type="submit">Add</button>
-      </form>
-    </div>
-    <NuxtLink :to="`/notes/preview/${res.id}`"> Preview </NuxtLink>
-    <div>
-      <input
-        v-model="title"
-        type="text"
-        :readonly="!isAuthor"
-        @change="update()"
-      />
-    </div>
+  <div>
+    <Nav />
+    <div class="w-4/5 sm:w-2/3 mx-auto">
+      <button class="button--blue my-3" @click="toggleAddEditors">
+        Add Editor
+      </button>
 
-    <div id="toolbar"></div>
-    <div
-      v-quill:myQuillEditor="editorOption"
-      class="quill-editor"
-      :content="content"
-      @change="onEditorChange($event), update()"
-      @blur="onEditorBlur($event)"
-      @focus="onEditorFocus($event)"
-      @ready="onEditorReady($event)"
-    >
-      <form ref="formInput">
+      <NuxtLink :to="`/notes/preview/${res.id}`" class="button--blue">
+        Preview
+         <span><font-awesome-icon :icon="['fas', 'eye']" /></span>
+      </NuxtLink>
+      <div
+        v-if="addEditor"
+        class="absolute hex left-0 top-0 bottom-0 right-0 w-full"
+      >
+        <div class="bg-white sm:w-1/3 w-4/5 shadow-lg p-10 mx-auto mt-32">
+          <form @submit="addNewEditor">
+            <input
+              v-model="editorEmail"
+              class="p-5 font-bold w-full border-3 border-black-500"
+              type="email"
+              placeholder="Email"
+            />
+
+            <button type="submit" class="button--blue my-3">
+              Add
+            </button>
+          </form>
+
+          <button type="submit" class="button--green" @click="toggleAddEditors">
+            Cancel
+          </button>
+        </div>
+      </div>
+      <!-- <div>
         <input
-          id="file"
-          ref="input"
-          name="files"
-          class="file"
-          type="file"
-          style="display: none"
-          @change="doUpload"
+          v-model="title"
+          class="p-5 font-bold text-4xl w-4/5 border-3 border-black-500"
+          type="text"
+          :readonly="!isAuthor"
+          @change="update()"
         />
-      </form>
+        <span> <font-awesome-icon :icon="['fas', 'pen-alt']" /> </span>
+      </div> -->
+
+      <div id="toolbar"></div>
+      <div
+        ref="quill-editor"
+        v-quill:myQuillEditor="editorOption"
+        class="quill-editor shadow-2xl"
+        :content="content"
+        @change="onEditorChange($event), update()"
+        @blur="onEditorBlur($event)"
+        @focus="onEditorFocus($event)"
+        @ready="onEditorReady($event)"
+      >
+        <form ref="formInput">
+          <input
+            id="file"
+            ref="input"
+            name="files"
+            class="file"
+            type="file"
+            style="display: none"
+            @change="doUpload"
+          />
+        </form>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-// import { mapGetters } from 'vuex'
+// import { ValidationProvider, ValidationObserver } from 'vee-validate'
 export default {
-  async middleware({ $auth, route, redirect, store, $strapi }) {
-    console.log(
-      'cookie user from middleware',
-      $auth.$storage.getUniversal('user')
+  // components: {
+  //   ValidationProvider,
+  //   ValidationObserver
+  // },
+  async middleware({ $auth, route, redirect, store, $strapi, $axios }) {
+    const token = $auth.$storage.getUniversal('jwt')
+    // const note = await $strapi.$notes.findOne(route.params.id)
+    const response = await $axios.get(
+      `/notes/${route.params.id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
     )
-    console.log(route.params.id)
-    const note = await $strapi.$notes.findOne(route.params.id)
+    const note = await response.data
     const noteAuthorId = note.users_permissions_user.id
     // console.log('note from middleware', await $strapi.$notes.findOne(route.params.id).users_permissions_user.id)
 
@@ -76,6 +114,7 @@ export default {
       error: '',
       isAuthor: '',
       title: '',
+      token: this.$auth.$storage.getUniversal(`jwt`),
       content: '',
       addEditor: false,
       editorEmail: '',
@@ -85,8 +124,9 @@ export default {
           toolbar: {
             container: [
               ['bold', 'italic', 'underline', 'strike'], // toggled buttons
+              ['link'],
               ['blockquote', 'code-block'],
-              ['link', 'image'],
+              ['image'],
 
               [{ header: 1 }, { header: 2 }], // custom button values
               [{ list: 'ordered' }, { list: 'bullet' }],
@@ -108,6 +148,15 @@ export default {
                 this.quill.format('image', false) // disable the quill internal upload image method
                 self.imgHandler(this)
               },
+              // link(value) {
+              //   this.quill.format('link', false)
+              //   // if (value) {
+              //   //   const href = prompt('Enter the URL')
+              //   //   this.quill.format('link', href)
+              //   // } else {
+              //   //   this.quill.format('link', false)
+              //   // }
+              // },
             },
           },
         },
@@ -133,16 +182,20 @@ export default {
   },
   methods: {
     handleRemove(file, fileList) {
-      console.log(file, fileList)
+      // console.log(file, fileList)
     },
     handlePreview(file) {
-      console.log(file)
+      // console.log(file)
     },
     onEditorBlur(editor) {
-      console.log('editor blur!', editor)
+      // console.log('editor blur!', editor)
     },
     onEditorFocus(editor) {
-      console.log('editor focus!', editor)
+      // console.log('editor focus!', editor)
+      // console.log('this.quillEditor')
+      this.$refs['quill-editor'].firstElementChild
+        .getElementsByTagName('h1')
+        .forEach((el) => console.log(el.textContent))
       if (
         !this.$auth.$storage.getUniversal('user') ||
         this.$auth.$storage.getUniversal('user').id !==
@@ -152,18 +205,21 @@ export default {
       }
     },
     onEditorReady(editor) {
-      console.log('editor ready!', editor)
+      // console.log('editor ready!', editor)
     },
     onEditorChange({ editor, html, text }) {
-      console.log('editor change!', editor, html, text)
+      // console.log('editor change!', editor, html, text)
       this.content = html
     },
     imgHandler(handle) {
       this.quill = handle.quill
-      console.log(this.$refs)
       const inputfile = this.$refs.input
       inputfile.click()
     },
+    // linkHandler(handle) {
+    //   const link =
+    //   console.log(link)
+    // },
     async doUpload() {
       const file = this.$refs.formInput
       const formdata = new FormData(file) // Create a form object
@@ -183,7 +239,7 @@ export default {
           this.$auth.$storage.getUniversal('user').id
       ) {
         const res = await this.$axios.post(
-          `http://localhost:1337/upload`,
+          `/upload`,
           formdata
           // config
         )
@@ -194,24 +250,34 @@ export default {
         this.quill.insertEmbed(
           index,
           'image',
-          `http://localhost:1337${res.data[0].formats.small.url}`
+          `${res.data[0].formats.small.url}`
         )
         console.log(this.content)
       }
     },
     async update() {
       const params = {
-        title: this.title,
+        title: this.$refs[
+          'quill-editor'
+        ].firstElementChild?.getElementsByTagName('h1')[0]?.textContent,
         // publish_time: this.form.publish_time,
         content: this.content,
         // event_id: this.event_id
       }
       console.log('params', params)
-      const res = await this.$strapi.$notes.update(
-        this.$route.params.id,
-        params
+      // const res = await this.$strapi.$notes.update(
+      //   this.$route.params.id,
+      //   params
+      // )
+
+      await this.$axios.$put(`/notes/${this.$route.params.id}`, 
+        params,
+        {
+          headers: {
+            Authorization: `Bearer ${ this.token }`
+          }
+        }
       )
-      console.log(res)
       // if (res.data) {
       //   this.$notify.error({
       //     message: res.data.errorMsg,
@@ -239,19 +305,30 @@ export default {
           oldEditors.findIndex((editor) => editor.email === newEditor.email) ===
             -1
         ) {
-          const updatedEditors = [...oldEditors, newEditor] 
-          //call api to send mail
+          const updatedEditors = [...oldEditors, newEditor]
+          // call api to send mail
           await this.$axios.$post(
-            `http://localhost:1337/notes/${this.res.id}/addEditors`,
+            `/notes/${this.res.id}/addEditors`,
             {
               editorEmail: this.editorEmail,
               noteAuthor: this.$auth.$storage.getUniversal('user').email,
-            })
-          //update editors in strapi backend
-          await this.$strapi.$notes.update(this.$route.params.id, {
-            Editors: updatedEditors,
-          })
-          //update editors in store
+            }, {
+              headers: {
+                Authorization: `Bearer ${ this.token }`
+              }
+            }
+          )
+          // update editors in strapi backend
+          await this.$axios.$put(`/notes/${this.$route.params.id}`, 
+            {
+              Editors: updatedEditors,
+            }, {
+              headers: {
+                Authorization: `Bearer ${ this.token }`
+              }
+            }
+          )
+          // update editors in store
           this.$store.commit('updateEditors', updatedEditors)
         } else {
           this.error = `The user with that email doesn't exist or is already an editor`
@@ -263,33 +340,19 @@ export default {
         this.$nuxt.error(e)
       }
     },
+    toggleAddEditors() {
+      this.addEditor = !this.addEditor
+    },
   },
 }
 </script>
 <style scoped>
 .container {
-  width: 60%;
   margin: 0 auto;
   padding: 50px 0;
 }
-.quill-editor {
-  min-height: 200px;
-  /* max-height: 400px; */
-  padding: 5%;
-  overflow-y: auto;
-}
-.ql-toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: rgb(26, 25, 25);
-  color: #fff;
-}
+
 .ql-toolbar span {
   color: #fff;
-}
-img {
-  margin: 0 auto;
-  width: 60%;
 }
 </style>

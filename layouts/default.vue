@@ -38,10 +38,14 @@ html {
   background-color: #3b8070;
 }
 
+.button--green:focus {
+  outline: 0px !important;
+}
+
 .button--blue {
   display: inline-block;
   border-radius: 4px;
-  border: 1px solid blue;
+  border: 1px solid skyblue;
   color: blue;
   text-decoration: none;
   padding: 10px 30px;
@@ -49,6 +53,42 @@ html {
 
 .button--blue:hover {
   color: #fff;
-  background-color: blue;
+  background-color: skyblue;
+}
+
+.button--blue:focus {
+  outline: 0px !important;
+}
+
+.ql-container.ql-snow {
+  border: 0px !important;
+}
+
+.quill-editor img {
+  margin: 0 auto;
+  width: 60%;
+}
+
+.ql-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: white;
+  color: #fff;
+  border: 0px !important;
+}
+
+.quill-editor {
+  min-height: 200px;
+  /* max-height: 400px; */
+  padding: 10%;
+  overflow-y: auto;
+}
+
+.hex {
+  z-index: 9999999999;
+  background: rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  position: fixed;
 }
 </style>

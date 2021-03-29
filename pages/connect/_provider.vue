@@ -15,7 +15,7 @@ export default {
   },
   async mounted() {
     const res = await fetch(
-      `http://localhost:1337/auth/${this.provider}/callback?access_token=${this.access_token}`
+      `/auth/${this.provider}/callback?access_token=${this.access_token}`
     )
     const { jwt, user } = await res.json()
     // store jwt and user object in localStorage

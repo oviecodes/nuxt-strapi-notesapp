@@ -9,23 +9,19 @@
     <div class="sm:w-1/2 w-4/5">
       <h2 class="m-5 font-black text-3xl">Social Login</h2>
       <div class="shadow-xl bg-white p-10">
-        <!-- <a class="pointer" @click="FacebookLogin">Facebook</a>
-        <a class="pointer" @click="TwitterLogin">Twitter</a> -->
-
         <a
-          href="http://localhost:1337/connect/github"
+          href="https://strapi-notesapp.herokuapp.com/connect/github"
           class="cursor-pointer m-3 button--blue shadow-xl"
         >
           <span><font-awesome-icon :icon="['fab', 'github']" /></span>
           Github
         </a>
-        <a class="cursor-pointer m-3 button--blue shadow-xl">
+        <a
+          href="https://strapi-notesapp.herokuapp.com/connect/facebook"
+          class="cursor-pointer m-3 button--blue shadow-xl"
+        >
           <span><font-awesome-icon :icon="['fab', 'facebook']" /></span>
           Facebook
-        </a>
-        <a class="cursor-pointer m-3 button--blue shadow-xl">
-          <span><font-awesome-icon :icon="['fab', 'twitter']" /></span>
-          Twitter
         </a>
       </div>
     </div>

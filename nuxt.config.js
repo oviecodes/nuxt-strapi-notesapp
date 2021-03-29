@@ -19,7 +19,13 @@ export default {
 			src: '~/plugins/vue-quill-editor',
 			mode: 'client'
 		},
-		{ src: '~/plugins/infiniteloading', ssr: false }
+		{
+			src: '~/plugins/infiniteloading',
+			ssr: false
+		}
+		// {
+		// 	src: '~/plugins/vee-validate'
+		// }
 	],
 
 	// Auto import components: https://go.nuxtjs.dev/config-components
@@ -62,11 +68,14 @@ export default {
 					}
 				]
 			}
-		]
+		],
+		'nuxt-clipboard'
 	],
 
 	// Axios module configuration: https://go.nuxtjs.dev/config-axios
-	axios: {},
+	axios: {
+		baseURL: 'https://strapi-notesapp.herokuapp.com'
+	},
 
 	// PWA module configuration: https://go.nuxtjs.dev/pwa
 	pwa: {
@@ -79,6 +88,7 @@ export default {
 	build: {},
 
 	strapi: {
-		entities: [ 'notes', 'users' ]
+		entities: [ 'notes', 'users' ],
+		url: 'https://strapi-notesapp.herokuapp.com'
 	}
 };
