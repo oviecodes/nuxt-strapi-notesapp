@@ -9,8 +9,8 @@
         class="border-3 bg-white sm:w-1/3 w-4/5 shadow-lg p-10 mx-auto mt-32"
       >
         <form @submit="shareLink">
-          <input v-model="emails" class="w-full p-3 my-5" placeholder="Email" />
-          <button type="submit" class="button--blue my-3">Send</button>
+          <input v-model="emails" type="email" class="w-full p-3 my-5" placeholder="Email" />
+          <button type="submit" v-if="emails" class="button--blue my-3">Send</button>
         </form>
         <button type="submit" class="button--green" @click="toggleShare">
           Cancel

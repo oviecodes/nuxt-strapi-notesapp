@@ -1,7 +1,17 @@
 <template>
   <div>
     <Nav />
+    
     <div class="w-4/5 sm:w-2/3 mx-auto">
+      <div v-if='error' class="hex absolute left-0 top-0 h-full w-full">
+        <div
+         class="border-3 bg-white sm:w-1/3 w-4/5 shadow-lg p-10 mx-auto mt-32"
+        >
+          <p class="my-3">{{ error }}</p>
+          <button class="button--blue" @click="clearError">Ok</button>
+        </div>
+      </div>
+
       <div class="flex items-center space-x-5">
         <NuxtLink
           v-if="isEditor"
@@ -19,7 +29,7 @@
           Request Edit Permissions
         </button>
 
-        <Share :id="note.id" class="z-10" />
+        <Share v-if="user" :id="note.id" class="z-10" />
 
         <p class="cursor-pointer" @click="doCopy">
           Copy Link
@@ -49,6 +59,7 @@ export default {
   data() {
     return {
       error: '',
+      user: this.$auth.$storage.getUniversal('user'),
       message: 'https://nuxt-notesapp.herokuapp.com' + this.$route.fullPath,
       token: this.$auth.$storage.getUniversal('jwt'),
       editorOption: {
@@ -101,6 +112,9 @@ export default {
         this.error = 'please login to request access'
         console.log('please login to request access')
       }
+    },
+    clearError() {
+      this.error = ""
     },
     doCopy() {
       this.$copyText(this.message).then(

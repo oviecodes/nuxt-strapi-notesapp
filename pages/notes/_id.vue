@@ -8,12 +8,14 @@
 
       <NuxtLink :to="`/notes/preview/${res.id}`" class="button--blue">
         Preview
-         <span><font-awesome-icon :icon="['fas', 'eye']" /></span>
+        <span><font-awesome-icon :icon="['fas', 'eye']" /></span>
       </NuxtLink>
       <div
         v-if="addEditor"
         class="absolute hex left-0 top-0 bottom-0 right-0 w-full"
       >
+        <p v-if="error" class="text-red-300 my-3">{{ error }}</p>
+        <p v-if="success" class="text-red-300 my-3">{{ success }}</p>
         <div class="bg-white sm:w-1/3 w-4/5 shadow-lg p-10 mx-auto mt-32">
           <form @submit="addNewEditor">
             <input
@@ -23,9 +25,7 @@
               placeholder="Email"
             />
 
-            <button type="submit" class="button--blue my-3">
-              Add
-            </button>
+            <button type="submit" class="button--blue my-3">Add</button>
           </form>
 
           <button type="submit" class="button--green" @click="toggleAddEditors">
@@ -81,14 +81,11 @@ export default {
   async middleware({ $auth, route, redirect, store, $strapi, $axios }) {
     const token = $auth.$storage.getUniversal('jwt')
     // const note = await $strapi.$notes.findOne(route.params.id)
-    const response = await $axios.get(
-      `/notes/${route.params.id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    )
+    const response = await $axios.get(`/notes/${route.params.id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
     const note = await response.data
     const noteAuthorId = note.users_permissions_user.id
     // console.log('note from middleware', await $strapi.$notes.findOne(route.params.id).users_permissions_user.id)
@@ -270,14 +267,11 @@ export default {
       //   params
       // )
 
-      await this.$axios.$put(`/notes/${this.$route.params.id}`, 
-        params,
-        {
-          headers: {
-            Authorization: `Bearer ${ this.token }`
-          }
-        }
-      )
+      await this.$axios.$put(`/notes/${this.$route.params.id}`, params, {
+        headers: {
+          Authorization: `Bearer ${this.token}`,
+        },
+      })
       // if (res.data) {
       //   this.$notify.error({
       //     message: res.data.errorMsg,
@@ -312,29 +306,34 @@ export default {
             {
               editorEmail: this.editorEmail,
               noteAuthor: this.$auth.$storage.getUniversal('user').email,
-            }, {
+            },
+            {
               headers: {
-                Authorization: `Bearer ${ this.token }`
-              }
+                Authorization: `Bearer ${this.token}`,
+              },
             }
           )
           // update editors in strapi backend
-          await this.$axios.$put(`/notes/${this.$route.params.id}`, 
+          await this.$axios.$put(
+            `/notes/${this.$route.params.id}`,
             {
               Editors: updatedEditors,
-            }, {
+            },
+            {
               headers: {
-                Authorization: `Bearer ${ this.token }`
-              }
+                Authorization: `Bearer ${this.token}`,
+              },
             }
           )
           // update editors in store
           this.$store.commit('updateEditors', updatedEditors)
+          this.success = `Author added Successfully`
+          this.error = ''
         } else {
           this.error = `The user with that email doesn't exist or is already an editor`
+          this.success = ''
           console.log(`${this.error}`)
         }
-        this.error = ''
         this.editorEmail = ''
       } catch (e) {
         this.$nuxt.error(e)
@@ -342,6 +341,8 @@ export default {
     },
     toggleAddEditors() {
       this.addEditor = !this.addEditor
+      this.error = ''
+      this.success = ''
     },
   },
 }

@@ -10,7 +10,7 @@
              <p v-if="username"><span><font-awesome-icon :icon="['fas', 'user']" /></span> {{ username }}</p>
             </NuxtLink>
             <button class="button--blue" @click="logout" v-if="username" > Logout </button>
-            <button class="button--green" v-if="!username" > Sign in </button>
+            <NuxtLink class="button--green" v-if="!username" to="/login" > Sign in </NuxtLink>
         </div>
     </div>
     
