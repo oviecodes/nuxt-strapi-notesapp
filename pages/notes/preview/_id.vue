@@ -49,7 +49,7 @@ export default {
   data() {
     return {
       error: '',
-      message: 'http://localhost:3000' + this.$route.fullPath,
+      message: 'https://nuxt-notesapp.herokuapp.com' + this.$route.fullPath,
       token: this.$auth.$storage.getUniversal('jwt'),
       editorOption: {
         modules: {
