@@ -193,13 +193,6 @@ export default {
       this.$refs['quill-editor'].firstElementChild
         .getElementsByTagName('h1')
         .forEach((el) => console.log(el.textContent))
-      if (
-        !this.$auth.$storage.getUniversal('user') ||
-        this.$auth.$storage.getUniversal('user').id !==
-          this.res.users_permissions_user.id
-      ) {
-        editor.enable(false)
-      }
     },
     onEditorReady(editor) {
       // console.log('editor ready!', editor)
