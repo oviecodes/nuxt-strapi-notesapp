@@ -14,10 +14,11 @@ export default {
     }
   },
   async mounted() {
-    const res = await fetch(
+    const res = await this.$axios.$get(
       `/auth/${this.provider}/callback?access_token=${this.access_token}`
     )
-    const { jwt, user } = await res.json()
+    console.log('response', res)
+    const { jwt, user } = res
     // store jwt and user object in localStorage
 
     this.$auth.$storage.setUniversal('jwt', jwt)
