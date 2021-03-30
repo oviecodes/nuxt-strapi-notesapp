@@ -14,9 +14,9 @@
         v-if="addEditor"
         class="absolute hex left-0 top-0 bottom-0 right-0 w-full"
       >
-        <p v-if="error" class="text-red-300 my-3">{{ error }}</p>
-        <p v-if="success" class="text-red-300 my-3">{{ success }}</p>
         <div class="bg-white sm:w-1/3 w-4/5 shadow-lg p-10 mx-auto mt-32">
+          <p v-if="error" class="text-red-300 my-3">{{ error }}</p>
+          <p v-if="success" class="text-green-300 my-3">{{ success }}</p>
           <form @submit="addNewEditor">
             <input
               v-model="editorEmail"
